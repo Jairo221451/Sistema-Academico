@@ -12,6 +12,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# ========== CONFIGURACIÓN CORS ==========
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Tu frontend React
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST, PUT, DELETE, etc.
+    allow_headers=["*"],  # Todos los headers
+)
+
 # Crear todas las tablas
 models.Base.metadata.create_all(bind=engine)
 
