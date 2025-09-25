@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends
 from typing import List, Annotated
-import models
-import schemas
-from database import SessionLocal, engine
+from . import models
+from . import schemas
+from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
 
 app = FastAPI(
