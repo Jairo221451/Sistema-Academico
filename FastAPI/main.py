@@ -194,18 +194,3 @@ async def obtener_estadisticas(db: db_dependency):
         "total_cursos": total_cursos,
         "total_matriculas": total_matriculas
     }
-
-app = FastAPI(
-    title="Sistema Académico API",
-    description="API para gestión de estudiantes, docentes, cursos y matrículas",
-    version="1.0.0"
-)
-
-# Agregar estas líneas después de crear la app
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
