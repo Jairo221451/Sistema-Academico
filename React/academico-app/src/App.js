@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css'; // Tu nuevo CSS con Bootstrap
 import api from './api';
 import RegistroForm, { Modal } from './pages/RegistroForm';
+import LoginForm from './pages/LoginForm';
 
 // Componente Header con Bootstrap
 const Header = ({ onOpenRegistro, onOpenLogin }) => {
@@ -433,20 +434,12 @@ function App() {
 
       {/* Modal de Login */}
       <Modal isOpen={showLoginModal} onClose={handleCloseLogin}>
-        <div className="text-center p-4">
-          <div className="mb-4">
-            <i className="bi bi-person-circle display-1 text-primary"></i>
-          </div>
-          <h2 className="h3 mb-3">Iniciar Sesión</h2>
-          <p className="text-muted mb-4">Formulario de login próximamente...</p>
-          <button 
-            className="btn btn-primary" 
-            onClick={handleCloseLogin}
-          >
-            <i className="bi bi-x-circle me-1"></i>
-            Cerrar
-          </button>
-        </div>
+        <LoginForm 
+          onClose={handleCloseLogin}
+          onSuccess={(userData) => {
+            console.log('Usuario autenticado:', userData);            
+          }}
+        />
       </Modal>
       
       {/* Footer */}
