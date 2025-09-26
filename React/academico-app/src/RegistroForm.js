@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './RegistroForm.css'; // Importamos los estilos
+import './RegistroForm.css'; 
+import api from './api';
 
 // Modal Component
 export const Modal = ({ isOpen, onClose, children }) => {
@@ -39,7 +40,7 @@ const RegistroSuccess = ({ onClose, studentData }) => (
     <div className="success-icon">✓</div>
     <h3>¡Registro Exitoso!</h3>
     <p>
-      Bienvenido(a) <strong>{studentData?.nombres}</strong>
+      Bienvenido(a) <strong>{studentData?.nombre} {studentData?.apellido}</strong>
     </p>
     <p>
       Tu registro ha sido completado correctamente. 
@@ -57,17 +58,10 @@ const RegistroSuccess = ({ onClose, studentData }) => (
 // Componente Principal
 const RegistroForm = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    nombres: '',
-    apellidos: '',
-    dni: '',
-    telefono: '',
+    nombre: '',
+    apellido: '',
     email: '',
-    direccion: '',
-    fecha_nacimiento: '',
-    nombre_apoderado: '',
-    telefono_apoderado: '',
-    password: '',
-    confirmPassword: ''
+    telefono: ''
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +78,7 @@ const RegistroForm = ({ onClose, onSuccess }) => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['nombres', 'apellidos', 'dni', 'telefono', 'email', 'password', 'confirmPassword'];
+    const requiredFields = ['nombre', 'apellido', 'email', 'telefono'];
     const emptyFields = requiredFields.filter(field => !formData[field].trim());
     
     if (emptyFields.length > 0) {
@@ -95,20 +89,8 @@ const RegistroForm = ({ onClose, onSuccess }) => {
       setError('Por favor ingrese un email válido');
       return false;
     }
-    if (formData.dni.length !== 8 || !/^\d+$/.test(formData.dni)) {
-      setError('El DNI debe tener exactamente 8 dígitos');
-      return false;
-    }
-    if (formData.telefono.length !== 9 || !/^\d+$/.test(formData.telefono)) {
-      setError('El teléfono debe tener exactamente 9 dígitos');
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+    if (formData.telefono.length < 9 || !/^\d+$/.test(formData.telefono)) {
+      setError('El teléfono debe tener al menos 9 dígitos');
       return false;
     }
     return true;
@@ -122,13 +104,49 @@ const RegistroForm = ({ onClose, onSuccess }) => {
     setError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Estudiante registrado:', formData);
-      if (onSuccess) onSuccess(formData);
+      // Ya tenemos nombre y apellido separados en el formData
+      const dataToSend = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        email: formData.email,
+        telefono: formData.telefono
+      };
+      
+      const response = await api.post('/api/estudiantes/', dataToSend);
+      console.log('Estudiante registrado exitosamente:', response.data);
+      
+      if (onSuccess) onSuccess(response.data);
       setSuccess(true);
+      
     } catch (error) {
       console.error('Error al registrar estudiante:', error);
-      setError('Error de conexión. Verifique su conexión a internet.');
+      if (error.response) {
+        const status = error.response.status;
+        const errorData = error.response.data;
+        
+        if (status === 400) {
+          if (errorData.detail) {
+            if (Array.isArray(errorData.detail)) {
+              const errorMessages = errorData.detail.map(err => err.msg).join(', ');
+              setError(`Error de validación: ${errorMessages}`);
+            } else {
+              setError(`Error: ${errorData.detail}`);
+            }
+          } else {
+            setError('Los datos ingresados no son válidos');
+          }
+        } else if (status === 409) {
+          setError('El email ya está registrado');
+        } else if (status === 422) {
+          setError('Los datos ingresados no tienen el formato correcto');
+        } else {
+          setError('Error en el servidor. Intente nuevamente más tarde');
+        }
+      } else if (error.request) {
+        setError('Error de conexión. Verifique su conexión a internet');
+      } else {
+        setError('Error inesperado. Intente nuevamente');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -144,122 +162,63 @@ const RegistroForm = ({ onClose, onSuccess }) => {
         <div className="logo">🎓 Academia Preuniversitaria</div>
         <h2>Registro de Estudiante</h2>
         <p>
-          Completa tu información para crear tu cuenta y acceder al sistema de matrículas
+          Completa tu información básica para crear tu cuenta
         </p>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      {/* Información Personal */}
+      {/* Información Personal Básica */}
       <section>
         <h3>Información Personal</h3>
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Nombre Completo *</label>
-            <input
-              type="text"
-              name="nombres"
-              value={formData.nombres}
-              onChange={handleChange}
-              placeholder="Juan Pérez García"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>DNI *</label>
-            <input
-              type="text"
-              name="dni"
-              value={formData.dni}
-              onChange={handleChange}
-              placeholder="12345678"
-              maxLength="8"
-              required
-            />
-          </div>
+        
+        <div className="form-group">
+          <label>Nombres *</label>
+          <input
+            type="text"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleChange}
+            placeholder="Juan Carlos"
+            required
+          />
         </div>
 
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Correo Electrónico *</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="tu.email@ejemplo.com"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Teléfono *</label>
-            <input
-              type="tel"
-              name="telefono"
-              value={formData.telefono}
-              onChange={handleChange}
-              placeholder="987654321"
-              maxLength="9"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Apellidos *</label>
+          <input
+            type="text"
+            name="apellido"
+            value={formData.apellido}
+            onChange={handleChange}
+            placeholder="Pérez García"
+            required
+          />
         </div>
-      </section>
 
-      {/* Información del Apoderado */}
-      <section>
-        <h3>Información del Apoderado</h3>
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Nombre del Apoderado *</label>
-            <input
-              type="text"
-              name="nombre_apoderado"
-              value={formData.nombre_apoderado}
-              onChange={handleChange}
-              placeholder="María García Rodríguez"
-            />
-          </div>
-          <div className="form-group">
-            <label>Teléfono del Apoderado *</label>
-            <input
-              type="tel"
-              name="telefono_apoderado"
-              value={formData.telefono_apoderado}
-              onChange={handleChange}
-              placeholder="987654322"
-              maxLength="9"
-            />
-          </div>
+        <div className="form-group">
+          <label>Correo Electrónico *</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="tu.email@ejemplo.com"
+            required
+          />
         </div>
-      </section>
 
-      {/* Credenciales */}
-      <section>
-        <h3>Credenciales de Acceso</h3>
-        <div className="form-grid">
-          <div className="form-group">
-            <label>Contraseña *</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Mínimo 6 caracteres"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Confirmar Contraseña *</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repite tu contraseña"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Teléfono *</label>
+          <input
+            type="tel"
+            name="telefono"
+            value={formData.telefono}
+            onChange={handleChange}
+            placeholder="987654321"
+            required
+          />
+          <small className="form-help">Número de teléfono para contactarte</small>
         </div>
       </section>
 
@@ -268,6 +227,9 @@ const RegistroForm = ({ onClose, onSuccess }) => {
       </button>
 
       <div className="form-footer">
+        <p className="info-text">
+          📝 Este es un registro básico. Podrás completar más información después de crear tu cuenta.
+        </p>
         <p>¿Ya tienes cuenta? <button type="button" onClick={onClose}>Inicia sesión aquí</button></p>
         <button type="button" className="btn-link" onClick={onClose}>
           ← Volver al inicio

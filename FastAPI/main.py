@@ -5,6 +5,7 @@ from . import schemas
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.exc import IntegrityError
 
 app = FastAPI(
     title="Sistema Académico API",
@@ -38,7 +39,11 @@ db_dependency = Annotated[Session, Depends(get_db)]
 async def root():
     return {"message": "Sistema Académico API funcionando correctamente"}
 
-@app.get("/test-db")
+@app.get("/api/")
+async def api_root():
+    return {"message": "API v1.0 - Sistema Académico"}
+
+@app.get("/api/test-db")
 async def test_database(db: db_dependency):
     try:
         # Prueba la conexión
@@ -48,24 +53,36 @@ async def test_database(db: db_dependency):
         raise HTTPException(status_code=500, detail=f"Error de conexión: {str(e)}")
 
 # ========== ENDPOINTS DE ESTUDIANTES ==========
-@app.post("/estudiantes/", response_model=schemas.Estudiante)
+@app.post("/api/estudiantes/", response_model=schemas.Estudiante)
 async def crear_estudiante(estudiante: schemas.EstudianteCreate, db: db_dependency):
-    # Verificar si el email ya existe
-    db_estudiante = db.query(models.Estudiante).filter(models.Estudiante.email == estudiante.email).first()
-    if db_estudiante:
-        raise HTTPException(status_code=400, detail="Email ya registrado")
-    
-    db_estudiante = models.Estudiante(**estudiante.dict())
-    db.add(db_estudiante)
-    db.commit()
-    db.refresh(db_estudiante)
-    return db_estudiante
+    try:
+        # Verificar si el email ya existe
+        db_estudiante_email = db.query(models.Estudiante).filter(models.Estudiante.email == estudiante.email).first()
+        if db_estudiante_email:
+            raise HTTPException(status_code=409, detail="Email ya registrado")
+        
+        # Crear el estudiante
+        db_estudiante = models.Estudiante(**estudiante.dict())
+        db.add(db_estudiante)
+        db.commit()
+        db.refresh(db_estudiante)
+        return db_estudiante
+        
+    except IntegrityError as e:
+        db.rollback()
+        if "email" in str(e.orig):
+            raise HTTPException(status_code=409, detail="Email ya registrado")
+        else:
+            raise HTTPException(status_code=400, detail="Error de integridad en los datos")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
-@app.get("/estudiantes/", response_model=List[schemas.Estudiante])
+@app.get("/api/estudiantes/", response_model=List[schemas.Estudiante])
 async def listar_estudiantes(db: db_dependency):
     return db.query(models.Estudiante).all()
 
-@app.get("/estudiantes/{estudiante_id}", response_model=schemas.Estudiante)
+@app.get("/api/estudiantes/{estudiante_id}", response_model=schemas.Estudiante)
 async def obtener_estudiante(estudiante_id: int, db: db_dependency):
     estudiante = db.query(models.Estudiante).filter(models.Estudiante.id_usuario == estudiante_id).first()
     if not estudiante:
@@ -73,25 +90,37 @@ async def obtener_estudiante(estudiante_id: int, db: db_dependency):
     return estudiante
 
 # ========== ENDPOINTS DE DOCENTES ==========
-@app.post("/docentes/", response_model=schemas.Docente)
+@app.post("/api/docentes/", response_model=schemas.Docente)
 async def crear_docente(docente: schemas.DocenteCreate, db: db_dependency):
-    # Verificar si el email ya existe
-    db_docente = db.query(models.Docente).filter(models.Docente.email == docente.email).first()
-    if db_docente:
-        raise HTTPException(status_code=400, detail="Email ya registrado")
-    
-    db_docente = models.Docente(**docente.dict())
-    db.add(db_docente)
-    db.commit()
-    db.refresh(db_docente)
-    return db_docente
+    try:
+        # Verificar si el email ya existe
+        db_docente_email = db.query(models.Docente).filter(models.Docente.email == docente.email).first()
+        if db_docente_email:
+            raise HTTPException(status_code=409, detail="Email ya registrado")
+        
+        # Crear el docente
+        db_docente = models.Docente(**docente.dict())
+        db.add(db_docente)
+        db.commit()
+        db.refresh(db_docente)
+        return db_docente
+        
+    except IntegrityError as e:
+        db.rollback()
+        if "email" in str(e.orig):
+            raise HTTPException(status_code=409, detail="Email ya registrado")
+        else:
+            raise HTTPException(status_code=400, detail="Error de integridad en los datos")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
-@app.get("/docentes/", response_model=List[schemas.Docente])
+@app.get("/api/docentes/", response_model=List[schemas.Docente])
 async def listar_docentes(db: db_dependency):
     return db.query(models.Docente).all()
 
 # ========== ENDPOINTS DE CICLOS ==========
-@app.post("/ciclos/", response_model=schemas.Ciclo)
+@app.post("/api/ciclos/", response_model=schemas.Ciclo)
 async def crear_ciclo(ciclo: schemas.CicloCreate, db: db_dependency):
     db_ciclo = models.Ciclo(**ciclo.dict())
     db.add(db_ciclo)
@@ -99,11 +128,11 @@ async def crear_ciclo(ciclo: schemas.CicloCreate, db: db_dependency):
     db.refresh(db_ciclo)
     return db_ciclo
 
-@app.get("/ciclos/", response_model=List[schemas.Ciclo])
+@app.get("/api/ciclos/", response_model=List[schemas.Ciclo])
 async def listar_ciclos(db: db_dependency):
     return db.query(models.Ciclo).all()
 
-@app.get("/ciclos/{ciclo_id}", response_model=schemas.Ciclo)
+@app.get("/api/ciclos/{ciclo_id}", response_model=schemas.Ciclo)
 async def obtener_ciclo(ciclo_id: int, db: db_dependency):
     ciclo = db.query(models.Ciclo).filter(models.Ciclo.id_ciclo == ciclo_id).first()
     if not ciclo:
@@ -111,7 +140,7 @@ async def obtener_ciclo(ciclo_id: int, db: db_dependency):
     return ciclo
 
 # ========== ENDPOINTS DE CURSOS ==========
-@app.post("/cursos/", response_model=schemas.Curso)
+@app.post("/api/cursos/", response_model=schemas.Curso)
 async def crear_curso(curso: schemas.CursoCreate, db: db_dependency):
     # Verificar que el ciclo existe
     ciclo = db.query(models.Ciclo).filter(models.Ciclo.id_ciclo == curso.id_ciclo).first()
@@ -124,16 +153,16 @@ async def crear_curso(curso: schemas.CursoCreate, db: db_dependency):
     db.refresh(db_curso)
     return db_curso
 
-@app.get("/cursos/", response_model=List[schemas.Curso])
+@app.get("/api/cursos/", response_model=List[schemas.Curso])
 async def listar_cursos(db: db_dependency):
     return db.query(models.Curso).all()
 
-@app.get("/ciclos/{ciclo_id}/cursos/", response_model=List[schemas.Curso])
+@app.get("/api/ciclos/{ciclo_id}/cursos/", response_model=List[schemas.Curso])
 async def listar_cursos_por_ciclo(ciclo_id: int, db: db_dependency):
     return db.query(models.Curso).filter(models.Curso.id_ciclo == ciclo_id).all()
 
 # ========== ENDPOINTS DE HORARIOS ==========
-@app.post("/horarios/", response_model=schemas.Horario)
+@app.post("/api/horarios/", response_model=schemas.Horario)
 async def crear_horario(horario: schemas.HorarioCreate, db: db_dependency):
     # Verificar que el curso existe
     curso = db.query(models.Curso).filter(models.Curso.id_curso == horario.id_curso).first()
@@ -146,16 +175,16 @@ async def crear_horario(horario: schemas.HorarioCreate, db: db_dependency):
     db.refresh(db_horario)
     return db_horario
 
-@app.get("/horarios/", response_model=List[schemas.Horario])
+@app.get("/api/horarios/", response_model=List[schemas.Horario])
 async def listar_horarios(db: db_dependency):
     return db.query(models.Horario).all()
 
-@app.get("/cursos/{curso_id}/horarios/", response_model=List[schemas.Horario])
+@app.get("/api/cursos/{curso_id}/horarios/", response_model=List[schemas.Horario])
 async def listar_horarios_por_curso(curso_id: int, db: db_dependency):
     return db.query(models.Horario).filter(models.Horario.id_curso == curso_id).all()
 
 # ========== ENDPOINTS DE MATRÍCULAS ==========
-@app.post("/matriculas/", response_model=schemas.Matricula)
+@app.post("/api/matriculas/", response_model=schemas.Matricula)
 async def crear_matricula(matricula: schemas.MatriculaCreate, db: db_dependency):
     # Verificar que el estudiante existe
     estudiante = db.query(models.Estudiante).filter(models.Estudiante.id_usuario == matricula.id_usuario).first()
@@ -181,16 +210,16 @@ async def crear_matricula(matricula: schemas.MatriculaCreate, db: db_dependency)
     db.refresh(db_matricula)
     return db_matricula
 
-@app.get("/matriculas/", response_model=List[schemas.Matricula])
+@app.get("/api/matriculas/", response_model=List[schemas.Matricula])
 async def listar_matriculas(db: db_dependency):
     return db.query(models.Matricula).all()
 
-@app.get("/estudiantes/{estudiante_id}/matriculas/", response_model=List[schemas.Matricula])
+@app.get("/api/estudiantes/{estudiante_id}/matriculas/", response_model=List[schemas.Matricula])
 async def listar_matriculas_por_estudiante(estudiante_id: int, db: db_dependency):
     return db.query(models.Matricula).filter(models.Matricula.id_usuario == estudiante_id).all()
 
 # ========== ESTADÍSTICAS ==========
-@app.get("/estadisticas/")
+@app.get("/api/estadisticas/")
 async def obtener_estadisticas(db: db_dependency):
     total_estudiantes = db.query(models.Estudiante).count()
     total_docentes = db.query(models.Docente).count()
