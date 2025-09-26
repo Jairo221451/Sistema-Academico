@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './RegistroForm.css'; 
-import api from './api';
+import api from '../api';
 
 // Modal Component
 export const Modal = ({ isOpen, onClose, children }) => {

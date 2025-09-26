@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css'; // Tu nuevo CSS con Bootstrap
 import api from './api';
-import RegistroForm, { Modal } from './RegistroForm';
+import RegistroForm, { Modal } from './pages/RegistroForm';
 
 // Componente Header con Bootstrap
 const Header = ({ onOpenRegistro, onOpenLogin }) => {
