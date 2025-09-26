@@ -1,9 +1,9 @@
 /* ============================================
-   ESTILOS FORMALES - REGISTRO FORM
+   ESTILOS FORMALES - LOGIN FORM
    Tema Blanco y Negro Formal
    ============================================ */
 
-.registro-page {
+.login-page {
   min-height: 100vh;
   background: #ffffff;
   padding: 2rem 0;
@@ -37,7 +37,7 @@
 }
 
 .form-container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
   background: #ffffff;
   border-radius: 4px;
@@ -81,15 +81,8 @@
 /* ============================================
    GRUPOS DE FORMULARIO
    ============================================ */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-}
-
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .form-group label {
@@ -127,14 +120,6 @@
   font-weight: 400;
 }
 
-.form-help {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.8rem;
-  color: #666666;
-  font-style: italic;
-}
-
 /* ============================================
    MENSAJES DE ERROR
    ============================================ */
@@ -163,7 +148,7 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  margin: 2rem 0 1.5rem;
+  margin: 2.5rem 0 1.5rem;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -249,89 +234,10 @@
 }
 
 /* ============================================
-   PANTALLA DE ÉXITO
-   ============================================ */
-.registro-success {
-  text-align: center;
-  padding: 3rem 2rem;
-}
-
-.success-icon {
-  font-size: 3rem;
-  color: #000000;
-  background: #f8f8f8;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 2rem;
-  border: 2px solid #000000;
-}
-
-.registro-success h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #000000;
-}
-
-.registro-success p {
-  color: #666666;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-}
-
-.success-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.btn-outline {
-  background: #ffffff;
-  border: 2px solid #000000;
-  color: #000000;
-  padding: 1rem 2rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.btn-outline:hover {
-  background: #000000;
-  color: #ffffff;
-}
-
-/* ============================================
-   SECCIONES
-   ============================================ */
-section {
-  margin-bottom: 2.5rem;
-}
-
-section h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-  color: #000000;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f0f0f0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* ============================================
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 768px) {
-  .registro-page {
+  .login-page {
     padding: 1rem;
   }
   
@@ -340,28 +246,13 @@ section h3 {
     padding: 2rem 1.5rem;
   }
   
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
   .form-header h2 {
     font-size: 1.5rem;
   }
   
   .btn-submit {
     padding: 1rem 1.5rem;
-    margin: 1.5rem 0 1rem;
-  }
-  
-  .success-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .success-actions button {
-    width: 100%;
-    max-width: 200px;
+    margin: 2rem 0 1rem;
   }
 }
 
@@ -406,4 +297,17 @@ section h3 {
 .btn-link:focus-visible {
   outline: 2px solid #000000;
   outline-offset: 2px;
+}
+
+/* ============================================
+   ESTILOS ESPECÍFICOS PARA LOGIN
+   ============================================ */
+.login-page .form-group:last-of-type {
+  margin-bottom: 0;
+}
+
+.login-page .info-text {
+  background: #f8f8f8;
+  border-left: 3px solid #666666;
+  font-size: 0.8rem;
 }

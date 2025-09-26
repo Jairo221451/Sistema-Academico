@@ -1,9 +1,10 @@
-// src/pages/LoginForm.jsx
 import React, { useState } from 'react';
-import './RegistroForm.css'; // Reutilizamos los mismos estilos
+import { useNavigate } from 'react-router-dom';
+import './LoginForm.css';
 import api from '../api';
 
-const LoginForm = ({ onClose, onSuccess }) => {
+const LoginForm = ({ onSuccess }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -41,15 +42,14 @@ const LoginForm = ({ onClose, onSuccess }) => {
     setError('');
 
     try {
-      // Enviar credenciales al backend
       const response = await api.post('/api/auth/login', formData);
-
       console.log('Inicio de sesión exitoso:', response.data);
 
-      // Si el backend devuelve un token o datos de usuario
       if (onSuccess) onSuccess(response.data);
+      
+      // Redirigir al dashboard o página principal después del login
+      navigate('/');
 
-      onClose(); // Cierra el modal después del login
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
 
@@ -72,53 +72,76 @@ const LoginForm = ({ onClose, onSuccess }) => {
     }
   };
 
+  const handleRegistroRedirect = () => {
+    navigate('/registro');
+  };
+
+  const handleBack = () => {
+    navigate('/');
+  };
+
   return (
-    <form className="registro-form" onSubmit={handleSubmit}>
-      <div className="form-header">
-        <div className="logo">🎓 Academia Preuniversitaria</div>
-        <h2>Iniciar Sesión</h2>
-        <p>Ingresa tus credenciales para acceder a tu cuenta</p>
+    <div className="login-page">
+      <div className="container">
+        <div className="page-header">
+          <button className="btn-back" onClick={handleBack}>
+            <i className="bi bi-arrow-left"></i>
+            Volver al Inicio
+          </button>
+        </div>
+        
+        <div className="form-container">
+          <form className="registro-form" onSubmit={handleSubmit}>
+            <div className="form-header">
+              <div className="logo">🎓 Academia Preuniversitaria</div>
+              <h2>Iniciar Sesión</h2>
+              <p>Ingresa tus credenciales para acceder a tu cuenta</p>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <div className="form-group">
+              <label>Correo Electrónico *</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="tu.email@ejemplo.com"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Contraseña *</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="********"
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn-submit" disabled={isLoading}>
+              {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            </button>
+
+            <div className="form-footer">
+              <p className="info-text">
+                🔑 ¿Olvidaste tu contraseña? Contacta con el administrador.
+              </p>
+              <p>¿No tienes cuenta? 
+                <button type="button" className="btn-link" onClick={handleRegistroRedirect}>
+                  Regístrate aquí
+                </button>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="form-group">
-        <label>Correo Electrónico *</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="tu.email@ejemplo.com"
-          required
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Contraseña *</label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="********"
-          required
-        />
-      </div>
-
-      <button type="submit" className="btn-submit" disabled={isLoading}>
-        {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-      </button>
-
-      <div className="form-footer">
-        <p className="info-text">
-          🔑 ¿Olvidaste tu contraseña? Contacta con el administrador.
-        </p>
-        <button type="button" className="btn-link" onClick={onClose}>
-          ← Volver al inicio
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 

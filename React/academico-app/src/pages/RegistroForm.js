@@ -1,62 +1,42 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './RegistroForm.css'; 
 import api from '../api';
 
-// Modal Component
-export const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+// Componente de Éxito
+const RegistroSuccess = ({ studentData }) => {
+  const navigate = useNavigate();
+  
+  const handleContinue = () => {
+    navigate('/');
   };
 
   return (
-    <div 
-      className="modal-overlay"
-      onClick={handleOverlayClick}
-      role="dialog"
-      aria-hidden="true"
-    >
-      <div className="modal-content">
-        <button
-          type="button"
-          className="modal-close"
-          onClick={onClose}
-          aria-label="Close"
+    <div className="registro-success">
+      <div className="success-icon">✓</div>
+      <h3>¡Registro Exitoso!</h3>
+      <p>
+        Bienvenido(a) <strong>{studentData?.nombre} {studentData?.apellido}</strong>
+      </p>
+      <p>
+        Tu registro ha sido completado correctamente. 
+        Recibirás un correo de confirmación en breve.
+      </p>
+      <div className="success-actions">
+        <button 
+          className="btn-submit"
+          onClick={handleContinue}
         >
-          ×
+          Ir al Inicio
         </button>
-        {children}
       </div>
     </div>
   );
 };
 
-// Componente de Éxito
-const RegistroSuccess = ({ onClose, studentData }) => (
-  <div className="registro-success">
-    <div className="success-icon">✓</div>
-    <h3>¡Registro Exitoso!</h3>
-    <p>
-      Bienvenido(a) <strong>{studentData?.nombre} {studentData?.apellido}</strong>
-    </p>
-    <p>
-      Tu registro ha sido completado correctamente. 
-      Recibirás un correo de confirmación en breve.
-    </p>
-    <button 
-      className="btn-submit"
-      onClick={onClose}
-    >
-      Continuar
-    </button>
-  </div>
-);
-
 // Componente Principal
-const RegistroForm = ({ onClose, onSuccess }) => {
+const RegistroForm = ({ onSuccess }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
@@ -104,7 +84,6 @@ const RegistroForm = ({ onClose, onSuccess }) => {
     setError('');
 
     try {
-      // Ya tenemos nombre y apellido separados en el formData
       const dataToSend = {
         nombre: formData.nombre,
         apellido: formData.apellido,
@@ -152,90 +131,120 @@ const RegistroForm = ({ onClose, onSuccess }) => {
     }
   };
 
+  const handleLoginRedirect = () => {
+    navigate('/login');
+  };
+
+  const handleBack = () => {
+    navigate('/');
+  };
+
   if (success) {
-    return <RegistroSuccess onClose={onClose} studentData={formData} />;
+    return (
+      <div className="registro-page">
+        <div className="container">
+          <RegistroSuccess studentData={formData} />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <form className="registro-form" onSubmit={handleSubmit}>
-      <div className="form-header">
-        <div className="logo">🎓 Academia Preuniversitaria</div>
-        <h2>Registro de Estudiante</h2>
-        <p>
-          Completa tu información básica para crear tu cuenta
-        </p>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      {/* Información Personal Básica */}
-      <section>
-        <h3>Información Personal</h3>
+    <div className="registro-page">
+      <div className="container">
+        <div className="page-header">
+          <button className="btn-back" onClick={handleBack}>
+            <i className="bi bi-arrow-left"></i>
+            Volver al Inicio
+          </button>
+        </div>
         
-        <div className="form-group">
-          <label>Nombres *</label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            placeholder="Juan Carlos"
-            required
-          />
+        <div className="form-container">
+          <form className="registro-form" onSubmit={handleSubmit}>
+            <div className="form-header">
+              <div className="logo">🎓 Academia Preuniversitaria</div>
+              <h2>Registro de Estudiante</h2>
+              <p>
+                Completa tu información básica para crear tu cuenta
+              </p>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            {/* Información Personal Básica */}
+            <section>
+              <h3>Información Personal</h3>
+              
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Nombres *</label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    placeholder="Juan Carlos"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Apellidos *</label>
+                  <input
+                    type="text"
+                    name="apellido"
+                    value={formData.apellido}
+                    onChange={handleChange}
+                    placeholder="Pérez García"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Correo Electrónico *</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="tu.email@ejemplo.com"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Teléfono *</label>
+                <input
+                  type="tel"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleChange}
+                  placeholder="987654321"
+                  required
+                />
+                <small className="form-help">Número de teléfono para contactarte</small>
+              </div>
+            </section>
+
+            <button type="submit" className="btn-submit" disabled={isLoading}>
+              {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+            </button>
+
+            <div className="form-footer">
+              <p className="info-text">
+                📝 Este es un registro básico. Podrás completar más información después de crear tu cuenta.
+              </p>
+              <p>¿Ya tienes cuenta? 
+                <button type="button" className="btn-link" onClick={handleLoginRedirect}>
+                  Inicia sesión aquí
+                </button>
+              </p>
+            </div>
+          </form>
         </div>
-
-        <div className="form-group">
-          <label>Apellidos *</label>
-          <input
-            type="text"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            placeholder="Pérez García"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Correo Electrónico *</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="tu.email@ejemplo.com"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Teléfono *</label>
-          <input
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            placeholder="987654321"
-            required
-          />
-          <small className="form-help">Número de teléfono para contactarte</small>
-        </div>
-      </section>
-
-      <button type="submit" className="btn-submit" disabled={isLoading}>
-        {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-      </button>
-
-      <div className="form-footer">
-        <p className="info-text">
-          📝 Este es un registro básico. Podrás completar más información después de crear tu cuenta.
-        </p>
-        <p>¿Ya tienes cuenta? <button type="button" onClick={onClose}>Inicia sesión aquí</button></p>
-        <button type="button" className="btn-link" onClick={onClose}>
-          ← Volver al inicio
-        </button>
       </div>
-    </form>
+    </div>
   );
 };
 

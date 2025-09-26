@@ -1,55 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // Tu nuevo CSS con Bootstrap
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import './App.css';
 import api from './api';
-import RegistroForm, { Modal } from './pages/RegistroForm';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import RegistroForm from './pages/RegistroForm';
 import LoginForm from './pages/LoginForm';
 
-// Componente Header con Bootstrap
-const Header = ({ onOpenRegistro, onOpenLogin }) => {
+// Componente que controla la visibilidad del Header y Footer
+const Layout = ({ children, connectionStatus }) => {
+  const location = useLocation();
+  const hideHeaderFooter = ['/login', '/registro'].includes(location.pathname);
+
   return (
-    <header className="custom-header">
-      <div className="container-fluid">
-        <nav className="navbar navbar-expand-lg navbar-light">
-          <div className="navbar-brand d-flex align-items-center">
-            <span className="logo-icon me-2">🎓</span>
-            <span className="logo-text">Academia Preuniversitaria</span>
-          </div>
-          
-          <button 
-            className="navbar-toggler" 
-            type="button" 
-            data-bs-toggle="collapse" 
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          
-          <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <div className="d-flex flex-column flex-lg-row gap-2">
-              <button 
-                className="btn btn-outline-primary" 
-                onClick={onOpenLogin}
-              >
-                <i className="bi bi-person me-1"></i>
-                Iniciar Sesión
-              </button>
-              <button 
-                className="btn btn-primary" 
-                onClick={onOpenRegistro}
-              >
-                <i className="bi bi-person-plus me-1"></i>
-                Registrarse
-              </button>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </header>
+    <>
+      {!hideHeaderFooter && <Header />}
+      <main>
+        {children}
+      </main>
+      {!hideHeaderFooter && <Footer connectionStatus={connectionStatus} />}
+    </>
   );
 };
 
 // Componente Hero con Bootstrap
-const Hero = ({ onOpenRegistro }) => {
+const Hero = () => {
   return (
     <section className="hero-section">
       <div className="container">
@@ -63,13 +38,10 @@ const Hero = ({ onOpenRegistro }) => {
               <br className="d-none d-md-block" />
               para cada carrera
             </p>
-            <button 
-              className="btn btn-primary btn-lg px-5 py-3" 
-              onClick={onOpenRegistro}
-            >
+            <a href="/registro" className="btn btn-primary btn-lg px-5 py-3 text-decoration-none">
               <i className="bi bi-rocket-takeoff me-2"></i>
               Comienza tu Preparación
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -332,7 +304,7 @@ const Estadisticas = () => {
 };
 
 // Componente CTA con Bootstrap
-const CallToAction = ({ onOpenRegistro, onOpenLogin }) => {
+const CallToAction = () => {
   return (
     <section className="cta-section">
       <div className="container">
@@ -343,20 +315,14 @@ const CallToAction = ({ onOpenRegistro, onOpenLogin }) => {
               Únete a cientos de estudiantes que han logrado ingresar a la universidad de sus sueños
             </p>
             <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-              <button 
-                className="btn btn-accent btn-lg px-5" 
-                onClick={onOpenRegistro}
-              >
+              <a href="/registro" className="btn btn-accent btn-lg px-5 text-decoration-none">
                 <i className="bi bi-person-plus-fill me-2"></i>
                 Registrarse Ahora
-              </button>
-              <button 
-                className="btn btn-outline-light btn-lg px-5" 
-                onClick={onOpenLogin}
-              >
+              </a>
+              <a href="/login" className="btn btn-outline-light btn-lg px-5 text-decoration-none">
                 <i className="bi bi-box-arrow-in-right me-2"></i>
                 Ya tengo cuenta
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -365,12 +331,22 @@ const CallToAction = ({ onOpenRegistro, onOpenLogin }) => {
   );
 };
 
+// Componente Principal de la Página de Inicio
+const HomePage = () => {
+  return (
+    <>
+      <Hero />
+      <Especialidades />
+      <Caracteristicas />
+      <Estadisticas />
+      <CallToAction />
+    </>
+  );
+};
+
 // Componente Principal App
 function App() {
   const [connectionStatus, setConnectionStatus] = useState('checking');
-  const [showRegistroModal, setShowRegistroModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [refreshStats, setRefreshStats] = useState(0);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -386,91 +362,51 @@ function App() {
     checkConnection();
   }, []);
 
-  const handleOpenRegistro = () => setShowRegistroModal(true);
-  const handleCloseRegistro = () => setShowRegistroModal(false);
-  const handleOpenLogin = () => setShowLoginModal(true);
-  const handleCloseLogin = () => setShowLoginModal(false);
-
   const handleRegistroSuccess = (newStudent) => {
     console.log('Nuevo estudiante registrado:', newStudent);
-    setRefreshStats(prev => prev + 1);
+  };
+
+  const handleLoginSuccess = (userData) => {
+    console.log('Usuario autenticado:', userData);
   };
 
   return (
-    <div className="App">
-      {/* Alert de conexión */}
-      {connectionStatus === 'disconnected' && (
-        <div className="alert alert-warning connection-alert mb-0" role="alert">
-          <div className="container-fluid">
-            <i className="bi bi-exclamation-triangle me-2"></i>
-            No se pudo conectar con el servidor. Asegúrate de que el backend esté funcionando.
-          </div>
-        </div>
-      )}
-      
-      <Header 
-        onOpenRegistro={handleOpenRegistro}
-        onOpenLogin={handleOpenLogin}
-      />
-      
-      <main>
-        <Hero onOpenRegistro={handleOpenRegistro} />
-        <Especialidades />
-        <Caracteristicas />
-        <Estadisticas key={refreshStats} />
-        <CallToAction 
-          onOpenRegistro={handleOpenRegistro}
-          onOpenLogin={handleOpenLogin}
-        />
-      </main>
-      
-      {/* Modal de Registro */}
-      <Modal isOpen={showRegistroModal} onClose={handleCloseRegistro}>
-        <RegistroForm 
-          onClose={handleCloseRegistro}
-          onSuccess={handleRegistroSuccess}
-        />
-      </Modal>
-
-      {/* Modal de Login */}
-      <Modal isOpen={showLoginModal} onClose={handleCloseLogin}>
-        <LoginForm 
-          onClose={handleCloseLogin}
-          onSuccess={(userData) => {
-            console.log('Usuario autenticado:', userData);            
-          }}
-        />
-      </Modal>
-      
-      {/* Footer */}
-      <footer className="bg-dark text-light py-4">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-md-8">
-              <p className="mb-1">
-                <i className="bi bi-c-circle me-1"></i>
-                2024 Academia Preuniversitaria. Todos los derechos reservados.
-              </p>
-            </div>
-            <div className="col-md-4 text-md-end">
-              <p className="mb-0">
-                Estado: 
-                <span className={`status ms-2 ${connectionStatus}`}>
-                  <i className={`bi ${
-                    connectionStatus === 'connected' ? 'bi-wifi' :
-                    connectionStatus === 'disconnected' ? 'bi-wifi-off' : 
-                    'bi-hourglass-split'
-                  } me-1`}></i>
-                  {connectionStatus === 'connected' ? 'Conectado' :
-                   connectionStatus === 'disconnected' ? 'Desconectado' : 
-                   'Verificando'}
-                </span>
-              </p>
+    <Router>
+      <div className="App">
+        {/* Alert de conexión */}
+        {connectionStatus === 'disconnected' && (
+          <div className="alert alert-warning connection-alert mb-0" role="alert">
+            <div className="container-fluid">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              No se pudo conectar con el servidor. Asegúrate de que el backend esté funcionando.
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        )}
+        
+        <Layout connectionStatus={connectionStatus}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route 
+              path="/registro" 
+              element={
+                <RegistroForm 
+                  onSuccess={handleRegistroSuccess}
+                />
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <LoginForm 
+                  onSuccess={handleLoginSuccess}
+                />
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Layout>
+      </div>
+    </Router>
   );
 }
 

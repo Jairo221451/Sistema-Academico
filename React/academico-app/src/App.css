@@ -1,5 +1,3 @@
-/* Bootstrap CSS + Personalizaciones */
-
 /* ============================================
    IMPORTAR BOOTSTRAP
    ============================================ */
@@ -7,36 +5,51 @@
 @import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css');
 
 /* ============================================
-   VARIABLES PERSONALIZADAS
+   VARIABLES PERSONALIZADAS - TEMA BLANCO Y NEGRO
    ============================================ */
 :root {
-  --bs-primary: #1a1a1a;
+  --bs-primary: #000000;
   --bs-secondary: #f8f9fa;
-  --bs-success: #198754;
-  --bs-info: #0dcaf0;
+  --bs-success: #28a745;
+  --bs-info: #6c757d;
   --bs-warning: #ffc107;
   --bs-danger: #dc3545;
   --bs-light: #f8f9fa;
   --bs-dark: #212529;
   
-  --custom-accent: #4285f4;
-  --custom-text-light: #6c757d;
-  --custom-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  --custom-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-  --custom-border-radius: 0.75rem;
-  --custom-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --custom-accent: #000000;
+  --custom-gray-light: #f5f5f5;
+  --custom-gray-medium: #e0e0e0;
+  --custom-gray-dark: #757575;
+  --custom-text-light: #9e9e9e;
+  --custom-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --custom-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --custom-border-radius: 0.375rem;
+  --custom-font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --custom-line-height: 1.6;
 }
 
 /* ============================================
-   BASE STYLES
+   BASE STYLES - TIPOGRÁFIA FORMAL
    ============================================ */
 body {
   font-family: var(--custom-font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
+  line-height: var(--custom-line-height);
   color: var(--bs-dark);
+  background-color: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 /* ============================================
@@ -54,84 +67,101 @@ body {
   border-radius: var(--custom-border-radius) !important;
 }
 
-.text-accent {
-  color: var(--custom-accent) !important;
-}
-
-.bg-accent {
-  background-color: var(--custom-accent) !important;
-}
-
-.text-light-custom {
-  color: var(--custom-text-light) !important;
+.border-custom {
+  border: 1px solid var(--custom-gray-medium) !important;
 }
 
 /* ============================================
-   BOTONES PERSONALIZADOS
+   BOTONES PERSONALIZADOS - ESTILO FORMAL
    ============================================ */
 .btn {
   border-radius: var(--custom-border-radius);
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--custom-shadow-lg);
+  transform: translateY(-1px);
+  box-shadow: var(--custom-shadow);
 }
 
-.btn-accent {
-  background-color: var(--custom-accent);
-  border-color: var(--custom-accent);
-  color: white;
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #ffffff;
 }
 
-.btn-accent:hover {
-  background-color: #3367d6;
-  border-color: #3367d6;
-  color: white;
+.btn-primary:hover {
+  background-color: #333333;
+  border-color: #333333;
+  color: #ffffff;
 }
 
-.btn-outline-accent {
-  color: var(--custom-accent);
-  border-color: var(--custom-accent);
+.btn-outline-primary {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  background-color: transparent;
 }
 
-.btn-outline-accent:hover {
-  background-color: var(--custom-accent);
-  border-color: var(--custom-accent);
-  color: white;
+.btn-outline-primary:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #ffffff;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
 }
 
 /* ============================================
-   HEADER
+   HEADER - DISEÑO MINIMALISTA
    ============================================ */
 .custom-header {
-  background-color: white;
-  border-bottom: 1px solid var(--bs-border-color);
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--custom-gray-medium);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 1030;
+  padding: 1rem 0;
 }
 
 .logo-icon {
   font-size: 1.5rem;
+  background: var(--bs-primary);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .logo-text {
-  font-weight: 600;
-  font-size: 1.125rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+  letter-spacing: -0.01em;
+}
+
+.navbar-nav .btn {
+  margin-left: 0.5rem;
 }
 
 /* ============================================
-   HERO SECTION
+   HERO SECTION - ELEGANTE Y SOBRIO
    ============================================ */
 .hero-section {
-  background: linear-gradient(135deg, var(--bs-light) 0%, #e9ecef 100%);
-  padding: 5rem 0;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+  padding: 6rem 0;
+  border-bottom: 1px solid var(--custom-gray-medium);
 }
 
 .hero-title {
@@ -139,165 +169,206 @@ body {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
+  color: var(--bs-primary);
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: var(--custom-text-light);
+  color: var(--custom-gray-dark);
   margin-bottom: 2.5rem;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 /* ============================================
-   CARDS PERSONALIZADAS
+   CARDS PERSONALIZADAS - DISEÑO LIMPIO
    ============================================ */
 .custom-card {
-  border: 1px solid var(--bs-border-color);
+  border: 1px solid var(--custom-gray-medium);
   border-radius: var(--custom-border-radius);
   transition: all 0.3s ease;
   height: 100%;
+  background: #ffffff;
 }
 
 .custom-card:hover {
-  transform: translateY(-0.5rem);
+  transform: translateY(-4px);
   box-shadow: var(--custom-shadow-lg);
-  border-color: var(--custom-accent);
+  border-color: var(--bs-primary);
 }
 
 .grupo-card {
   text-align: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
 }
 
 .grupo-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1.25rem;
   display: block;
+  opacity: 0.9;
 }
 
 .grupo-nombre {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--bs-dark);
+  color: var(--bs-primary);
 }
 
 .grupo-carrera {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
-  color: var(--custom-accent);
+  color: var(--custom-gray-dark);
   margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .cursos-incluidos {
   text-align: left;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cursos-incluidos strong {
+  color: var(--bs-primary);
+  font-weight: 600;
 }
 
 .cursos-incluidos ul {
   list-style: none;
   padding-left: 0;
+  margin-top: 0.5rem;
 }
 
 .cursos-incluidos li {
   padding: 0.25rem 0;
   position: relative;
-  padding-left: 1.25rem;
+  padding-left: 1rem;
+  color: var(--custom-gray-dark);
+  font-size: 0.9rem;
 }
 
 .cursos-incluidos li:before {
-  content: "•";
-  color: var(--custom-accent);
+  content: "—";
+  color: var(--bs-primary);
   position: absolute;
   left: 0;
   font-weight: bold;
 }
 
 /* ============================================
-   FEATURE CARDS
+   FEATURE CARDS - DISEÑO MINIMALISTA
    ============================================ */
 .feature-card {
   text-align: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
   height: 100%;
-  background: white;
+  background: #ffffff;
   border-radius: var(--custom-border-radius);
   transition: all 0.3s ease;
-  border: 1px solid transparent;
+  border: 1px solid var(--custom-gray-medium);
 }
 
 .feature-card:hover {
-  transform: translateY(-0.25rem);
+  transform: translateY(-2px);
   box-shadow: var(--custom-shadow-lg);
-  border-color: var(--custom-accent);
+  border-color: var(--bs-primary);
 }
 
 .feature-icon {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1.25rem;
   display: block;
+  color: var(--bs-primary) !important;
 }
 
 .feature-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: var(--bs-dark);
+  color: var(--bs-primary);
+}
+
+.feature-card p {
+  color: var(--custom-gray-dark);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 /* ============================================
-   ESTADÍSTICAS
+   ESTADÍSTICAS - DISEÑO SOBRIO
    ============================================ */
 .stat-card {
   text-align: center;
-  padding: 2rem;
-  background: var(--bs-light);
+  padding: 2rem 1rem;
+  background: #ffffff;
   border-radius: var(--custom-border-radius);
   transition: all 0.3s ease;
   height: 100%;
+  border: 1px solid var(--custom-gray-medium);
 }
 
 .stat-card:hover {
-  transform: translateY(-0.25rem);
+  transform: translateY(-2px);
   box-shadow: var(--custom-shadow);
+  border-color: var(--bs-primary);
 }
 
 .stat-number {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: var(--custom-accent);
+  color: var(--bs-primary);
   margin-bottom: 0.5rem;
   display: block;
+  font-feature-settings: "tnum";
 }
 
 .stat-label {
-  font-size: 1.1rem;
-  color: var(--custom-text-light);
+  font-size: 0.9rem;
+  color: var(--custom-gray-dark);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* ============================================
-   CALL TO ACTION
+   CALL TO ACTION - ELEGANTE
    ============================================ */
 .cta-section {
-  background: linear-gradient(135deg, var(--bs-primary) 0%, #333 100%);
+  background: linear-gradient(135deg, #000000 0%, #333333 100%);
   color: white;
   padding: 5rem 0;
+  border-top: 1px solid var(--custom-gray-medium);
 }
 
 .cta-title {
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  letter-spacing: -0.01em;
 }
 
 .cta-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   margin-bottom: 2.5rem;
   opacity: 0.9;
+  font-weight: 400;
+}
+
+.cta-section .btn-outline-light {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.cta-section .btn-outline-light:hover {
+  background-color: white;
+  color: var(--bs-primary);
+  border-color: white;
 }
 
 /* ============================================
-   CONNECTION ALERT
+   CONNECTION ALERT - DISEÑO DISCRETO
    ============================================ */
 .connection-alert {
   background-color: var(--bs-warning);
@@ -306,16 +377,18 @@ body {
   text-align: center;
   font-size: 0.875rem;
   border: none;
+  font-weight: 500;
 }
 
 /* ============================================
-   STATUS BADGES
+   STATUS BADGES - MINIMALISTA
    ============================================ */
 .status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 2rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .status.connected {
@@ -334,181 +407,77 @@ body {
 }
 
 /* ============================================
-   MODAL PERSONALIZADO
+   MODAL PERSONALIZADO - ELEGANTE
    ============================================ */
 .modal-content {
   border-radius: var(--custom-border-radius);
-  border: none;
+  border: 1px solid var(--custom-gray-medium);
   box-shadow: var(--custom-shadow-lg);
 }
 
 .modal-header {
-  border-bottom: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--custom-gray-medium);
   padding: 1.5rem;
+  background-color: #fafafa;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: var(--bs-primary);
 }
 
 .modal-body {
   padding: 1.5rem;
+  background-color: #ffffff;
 }
 
 .modal-footer {
-  border-top: 1px solid var(--bs-border-color);
+  border-top: 1px solid var(--custom-gray-medium);
   padding: 1.5rem;
-}
-
-/* Estados de éxito y error */
-.success-icon {
-  font-size: 3rem;
-  color: var(--bs-success);
-  background: var(--bs-success-bg-subtle);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  animation: successPulse 0.6s ease-in-out;
-}
-
-@keyframes successPulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  background-color: #fafafa;
 }
 
 /* ============================================
-   FORMS
+   FORMS - DISEÑO LIMPIO
    ============================================ */
+.form-floating > .form-control {
+  border: 1px solid var(--custom-gray-medium);
+  border-radius: var(--custom-border-radius);
+}
+
 .form-floating > .form-control:focus,
 .form-floating > .form-control:not(:placeholder-shown) {
-  border-color: var(--custom-accent);
-  box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-floating > label {
-  color: var(--custom-text-light);
+  color: var(--custom-gray-dark);
+  font-weight: 500;
 }
 
 .form-control:focus {
-  border-color: var(--custom-accent);
-  box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================
-   LOADING ANIMATIONS
+   FOOTER - DISEÑO FORMAL
    ============================================ */
-.btn:disabled::after {
-  content: '';
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 1s linear infinite;
-  margin-left: 0.5rem;
+footer {
+  background-color: #000000 !important;
+  color: #ffffff;
+  border-top: 1px solid #333;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+footer p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
 /* ============================================
-   TABLES
-   ============================================ */
-.table-custom {
-  border-radius: var(--custom-border-radius);
-  overflow: hidden;
-  box-shadow: var(--custom-shadow);
-}
-
-.table-custom thead th {
-  background-color: var(--bs-light);
-  border: none;
-  font-weight: 600;
-  padding: 1rem;
-}
-
-.table-custom tbody td {
-  padding: 0.75rem 1rem;
-  border-color: var(--bs-border-color);
-}
-
-.table-custom tbody tr:hover {
-  background-color: var(--bs-light);
-}
-
-/* ============================================
-   RESPONSIVE IMPROVEMENTS
-   ============================================ */
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 3rem 0;
-  }
-  
-  .cta-section {
-    padding: 3rem 0;
-  }
-  
-  .stat-number {
-    font-size: 2.5rem;
-  }
-  
-  .custom-card {
-    margin-bottom: 1.5rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .hero-title {
-    font-size: 2rem;
-  }
-  
-  .cta-title {
-    font-size: 2rem;
-  }
-  
-  .modal-content {
-    margin: 1rem;
-  }
-  
-  .btn-group-vertical .btn {
-    margin-bottom: 0.5rem;
-  }
-}
-
-/* ============================================
-   ACCESSIBILITY IMPROVEMENTS
-   ============================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-.btn:focus,
-.btn:focus-visible {
-  outline: 2px solid var(--custom-accent);
-  outline-offset: 2px;
-}
-
-/* ============================================
-   FADE IN ANIMATIONS
+   ANIMACIONES SUTILES
    ============================================ */
 @keyframes fadeInUp {
   from {
@@ -526,32 +495,109 @@ body {
 }
 
 /* ============================================
-   CUSTOM UTILITIES
+   MEJORAS DE ESPACIADO Y TIPOGRAFÍA
    ============================================ */
-.min-vh-50 {
-  min-height: 50vh;
+section {
+  padding: 4rem 0;
 }
 
-.min-vh-75 {
-  min-height: 75vh;
+.display-4 {
+  font-weight: 700;
+  color: var(--bs-primary);
 }
 
-.text-shadow {
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.backdrop-blur {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+.lead {
+  color: var(--custom-gray-dark);
+  font-weight: 400;
 }
 
 /* ============================================
-   LOADING STATE
+   RESPONSIVE IMPROVEMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .cta-section {
+    padding: 4rem 0;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+  
+  .custom-card {
+    margin-bottom: 1.5rem;
+  }
+  
+  .navbar-nav .btn {
+    margin: 0.25rem 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .cta-title {
+    font-size: 1.75rem;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+  }
+  
+  section {
+    padding: 3rem 0;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   UTILIDADES ADICIONALES
+   ============================================ */
+.text-shadow {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.border-top-custom {
+  border-top: 1px solid var(--custom-gray-medium);
+}
+
+.border-bottom-custom {
+  border-bottom: 1px solid var(--custom-gray-medium);
+}
+
+/* ============================================
+   ESTADOS DE CARGA
    ============================================ */
 .loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: loading 1.5s infinite;
+  border-radius: var(--custom-border-radius);
 }
 
 @keyframes loading {
@@ -561,4 +607,23 @@ body {
   100% {
     background-position: -200% 0;
   }
+}
+
+/* ============================================
+   MEJORAS VISUALES PARA ICONOS
+   ============================================ */
+.bi {
+  vertical-align: -0.125em;
+}
+
+/* ============================================
+   EFECTOS DE HOVER REFINADOS
+   ============================================ */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
