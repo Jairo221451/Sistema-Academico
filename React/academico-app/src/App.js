@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import './App.css';
 import api, { authService } from './api';
 import Header from './components/Header';
@@ -360,6 +360,11 @@ const CallToAction = ({ user }) => {
 
 // Componente Principal de la Página de Inicio
 const HomePage = ({ user }) => {
+  // Si el usuario está autenticado, redirigir al dashboard automáticamente
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <>
       <Hero user={user} />
@@ -377,7 +382,7 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-// Componente Principal App
+// Componente Principal App con navegación automática
 function App() {
   const [connectionStatus, setConnectionStatus] = useState('checking');
   const [user, setUser] = useState(null);
@@ -409,12 +414,14 @@ function App() {
     console.log('Nuevo usuario registrado:', userData);
     authService.setAuthData(userData);
     setUser(userData.usuario);
+    // La redirección se manejará automáticamente por el Navigate en HomePage
   };
 
   const handleLoginSuccess = (authData) => {
     console.log('Usuario autenticado:', authData);
     authService.setAuthData(authData);
     setUser(authData.usuario);
+    // La redirección se manejará automáticamente por el Navigate en HomePage
   };
 
   const handleLogout = () => {
@@ -441,14 +448,14 @@ function App() {
             <Route 
               path="/registro" 
               element={
-                user ? <Navigate to="/" replace /> :
+                user ? <Navigate to="/dashboard" replace /> :
                 <RegistroForm onSuccess={handleRegistroSuccess} />
               } 
             />
             <Route 
               path="/login" 
               element={
-                user ? <Navigate to="/" replace /> :
+                user ? <Navigate to="/dashboard" replace /> :
                 <LoginForm onSuccess={handleLoginSuccess} />
               } 
             />

@@ -44,7 +44,7 @@ const LoginForm = ({ onSuccess }) => {
       if (onSuccess) onSuccess(response.data);
       
       // Redirigir al dashboard o página principal después del login
-      navigate('./Dashboard.js');
+      navigate('./Dashboard');
 
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
