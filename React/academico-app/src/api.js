@@ -9,6 +9,20 @@ const api = axios.create({
   },
 });
 
+// Interceptor para agregar el token de autenticación a las requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Interceptor para manejar errores globalmente
 api.interceptors.response.use(
   (response) => response,
@@ -20,6 +34,13 @@ api.interceptors.response.use(
     } else if (error.response) {
       // El servidor respondió con un error
       console.error('Response Error:', error.response.status, error.response.data);
+      
+      // Si el token expiró, redirigir al login
+      if (error.response.status === 401) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_data');
+        window.location.href = '/login';
+      }
     } else if (error.request) {
       // La request fue hecha pero no hay respuesta
       console.error('Network Error:', error.message);
@@ -31,41 +52,38 @@ api.interceptors.response.use(
 
 // Funciones específicas para cada endpoint
 export const apiService = {
+  // Autenticación
+  login: (data) => api.post('/api/auth/login', data),
+  registerStudent: (data) => api.post('/api/auth/register/estudiante', data),
+  verifyToken: () => api.get('/api/auth/verify'),
+  
   // Endpoints de prueba
   testConnection: () => api.get('/'),
-  testDatabase: () => api.get('/test-db'),
+  testDatabase: () => api.get('/api/test-db'),
   
   // Estadísticas
-  getStats: () => api.get('/estadisticas/'),
+  getStats: () => api.get('/api/estadisticas'),
   
   // Estudiantes
-  createStudent: (data) => api.post('/estudiantes/', data),
-  getStudents: () => api.get('/estudiantes/'),
-  getStudent: (id) => api.get(`/estudiantes/${id}`),
-  getStudentEnrollments: (id) => api.get(`/estudiantes/${id}/matriculas/`),
+  getStudents: (skip = 0, limit = 100) => api.get(`/api/estudiantes?skip=${skip}&limit=${limit}`),
+  getStudent: (id) => api.get(`/api/estudiantes/${id}`),
   
   // Docentes
-  createTeacher: (data) => api.post('/docentes/', data),
-  getTeachers: () => api.get('/docentes/'),
+  getTeachers: (skip = 0, limit = 100) => api.get(`/api/docentes?skip=${skip}&limit=${limit}`),
   
   // Ciclos
-  createCycle: (data) => api.post('/ciclos/', data),
-  getCycles: () => api.get('/ciclos/'),
-  getCycle: (id) => api.get(`/ciclos/${id}`),
-  getCycleCourses: (id) => api.get(`/ciclos/${id}/cursos/`),
+  createCycle: (data) => api.post('/api/ciclos', data),
+  getCycles: (skip = 0, limit = 100) => api.get(`/api/ciclos?skip=${skip}&limit=${limit}`),
+  getCycle: (id) => api.get(`/api/ciclos/${id}`),
   
   // Cursos
-  createCourse: (data) => api.post('/cursos/', data),
-  getCourses: () => api.get('/cursos/'),
-  getCourseSchedules: (id) => api.get(`/cursos/${id}/horarios/`),
-  
-  // Horarios
-  createSchedule: (data) => api.post('/horarios/', data),
-  getSchedules: () => api.get('/horarios/'),
+  createCourse: (data) => api.post('/api/cursos', data),
+  getCourses: (skip = 0, limit = 100) => api.get(`/api/cursos?skip=${skip}&limit=${limit}`),
+  getCycleCourses: (id) => api.get(`/api/ciclos/${id}/cursos`),
   
   // Matrículas
-  createEnrollment: (data) => api.post('/matriculas/', data),
-  getEnrollments: () => api.get('/matriculas/'),
+  createEnrollment: (data) => api.post('/api/matriculas', data),
+  getEnrollments: (skip = 0, limit = 100) => api.get(`/api/matriculas?skip=${skip}&limit=${limit}`),
 };
 
 // Función helper para manejar errores de forma consistente
@@ -86,6 +104,70 @@ export const checkConnection = async () => {
       status: 'disconnected', 
       message: 'No se pudo conectar con el servidor' 
     };
+  }
+};
+
+// Funciones para manejar la autenticación
+export const authService = {
+  // Guardar datos de autenticación en localStorage
+  setAuthData: (data) => {
+    if (data.access_token) {
+      localStorage.setItem('access_token', data.access_token);
+    }
+    if (data.usuario) {
+      localStorage.setItem('user_data', JSON.stringify(data.usuario));
+    }
+    if (data.estudiante) {
+      localStorage.setItem('student_data', JSON.stringify(data.estudiante));
+    }
+    if (data.docente) {
+      localStorage.setItem('teacher_data', JSON.stringify(data.docente));
+    }
+    if (data.administrador) {
+      localStorage.setItem('admin_data', JSON.stringify(data.administrador));
+    }
+  },
+
+  // Obtener datos de autenticación
+  getAuthData: () => {
+    const token = localStorage.getItem('access_token');
+    const userData = localStorage.getItem('user_data');
+    const studentData = localStorage.getItem('student_data');
+    const teacherData = localStorage.getItem('teacher_data');
+    const adminData = localStorage.getItem('admin_data');
+    
+    return {
+      token,
+      user: userData ? JSON.parse(userData) : null,
+      student: studentData ? JSON.parse(studentData) : null,
+      teacher: teacherData ? JSON.parse(teacherData) : null,
+      admin: adminData ? JSON.parse(adminData) : null,
+    };
+  },
+
+  // Verificar si el usuario está autenticado
+  isAuthenticated: () => {
+    const token = localStorage.getItem('access_token');
+    return !!token;
+  },
+
+  // Cerrar sesión
+  logout: () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('student_data');
+    localStorage.removeItem('teacher_data');
+    localStorage.removeItem('admin_data');
+    window.location.href = '/login';
+  },
+
+  // Obtener el tipo de usuario
+  getUserType: () => {
+    const userData = localStorage.getItem('user_data');
+    if (!userData) return null;
+    
+    const user = JSON.parse(userData);
+    return user.tipo_usuario;
   }
 };
 

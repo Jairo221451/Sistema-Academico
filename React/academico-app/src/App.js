@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
-import api from './api';
+import api, { authService } from './api';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import RegistroForm from './pages/RegistroForm';
 import LoginForm from './pages/LoginForm';
+import Dashboard from './pages/Dashboard';
 
 // Componente que controla la visibilidad del Header y Footer
-const Layout = ({ children, connectionStatus }) => {
+const Layout = ({ children, connectionStatus, user }) => {
   const location = useLocation();
   const hideHeaderFooter = ['/login', '/registro'].includes(location.pathname);
 
   return (
     <>
-      {!hideHeaderFooter && <Header />}
+      {!hideHeaderFooter && <Header user={user} />}
       <main>
         {children}
       </main>
@@ -24,24 +25,32 @@ const Layout = ({ children, connectionStatus }) => {
 };
 
 // Componente Hero con Bootstrap
-const Hero = () => {
+const Hero = ({ user }) => {
   return (
     <section className="hero-section">
       <div className="container">
         <div className="row justify-content-center text-center">
           <div className="col-lg-10">
             <h1 className="hero-title text-shadow mb-4">
-              Tu camino hacia la universidad comienza aquí
+              {user ? `Bienvenido/a, ${user.nombre}` : 'Tu camino hacia la universidad comienza aquí'}
             </h1>
             <p className="hero-subtitle lead mb-4">
               Sistema integral de preparación preuniversitaria con metodología especializada
               <br className="d-none d-md-block" />
               para cada carrera
             </p>
-            <a href="/registro" className="btn btn-primary btn-lg px-5 py-3 text-decoration-none">
-              <i className="bi bi-rocket-takeoff me-2"></i>
-              Comienza tu Preparación
-            </a>
+            {!user && (
+              <a href="/registro" className="btn btn-primary btn-lg px-5 py-3 text-decoration-none">
+                <i className="bi bi-rocket-takeoff me-2"></i>
+                Comienza tu Preparación
+              </a>
+            )}
+            {user && user.tipo_usuario === 'estudiante' && (
+              <a href="/dashboard" className="btn btn-primary btn-lg px-5 py-3 text-decoration-none">
+                <i className="bi bi-speedometer2 me-2"></i>
+                Ir al Dashboard
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -214,15 +223,18 @@ const Estadisticas = () => {
   const [stats, setStats] = useState({
     total_estudiantes: 0,
     total_docentes: 0,
+    total_administradores: 0,
+    total_ciclos: 0,
     total_cursos: 0,
-    total_matriculas: 0
+    total_matriculas: 0,
+    total_pagos: 0
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get('/estadisticas/');
+        const response = await api.get('/api/estadisticas');
         setStats(response.data);
       } catch (error) {
         console.error('Error al obtener estadísticas:', error);
@@ -304,25 +316,40 @@ const Estadisticas = () => {
 };
 
 // Componente CTA con Bootstrap
-const CallToAction = () => {
+const CallToAction = ({ user }) => {
   return (
     <section className="cta-section">
       <div className="container">
         <div className="row justify-content-center text-center">
           <div className="col-lg-8">
-            <h2 className="cta-title text-shadow mb-3">¿Listo para comenzar?</h2>
+            <h2 className="cta-title text-shadow mb-3">
+              {user ? '¿Listo para continuar?' : '¿Listo para comenzar?'}
+            </h2>
             <p className="cta-subtitle">
-              Únete a cientos de estudiantes que han logrado ingresar a la universidad de sus sueños
+              {user 
+                ? 'Continúa tu preparación para ingresar a la universidad de tus sueños'
+                : 'Únete a cientos de estudiantes que han logrado ingresar a la universidad de sus sueños'
+              }
             </p>
             <div className="d-flex flex-column flex-sm-row gap-3 justify-content-center">
-              <a href="/registro" className="btn btn-accent btn-lg px-5 text-decoration-none">
-                <i className="bi bi-person-plus-fill me-2"></i>
-                Registrarse Ahora
-              </a>
-              <a href="/login" className="btn btn-outline-light btn-lg px-5 text-decoration-none">
-                <i className="bi bi-box-arrow-in-right me-2"></i>
-                Ya tengo cuenta
-              </a>
+              {!user && (
+                <>
+                  <a href="/registro" className="btn btn-accent btn-lg px-5 text-decoration-none">
+                    <i className="bi bi-person-plus-fill me-2"></i>
+                    Registrarse Ahora
+                  </a>
+                  <a href="/login" className="btn btn-outline-light btn-lg px-5 text-decoration-none">
+                    <i className="bi bi-box-arrow-in-right me-2"></i>
+                    Ya tengo cuenta
+                  </a>
+                </>
+              )}
+              {user && (
+                <a href="/dashboard" className="btn btn-primary btn-lg px-5 text-decoration-none">
+                  <i className="bi bi-speedometer2 me-2"></i>
+                  Ir al Dashboard
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -332,21 +359,28 @@ const CallToAction = () => {
 };
 
 // Componente Principal de la Página de Inicio
-const HomePage = () => {
+const HomePage = ({ user }) => {
   return (
     <>
-      <Hero />
+      <Hero user={user} />
       <Especialidades />
       <Caracteristicas />
       <Estadisticas />
-      <CallToAction />
+      <CallToAction user={user} />
     </>
   );
+};
+
+// Ruta protegida
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = authService.isAuthenticated();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 // Componente Principal App
 function App() {
   const [connectionStatus, setConnectionStatus] = useState('checking');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -359,15 +393,33 @@ function App() {
       }
     };
 
+    // Verificar autenticación al cargar la app
+    const checkAuth = () => {
+      const authData = authService.getAuthData();
+      if (authData.user) {
+        setUser(authData.user);
+      }
+    };
+
     checkConnection();
+    checkAuth();
   }, []);
 
-  const handleRegistroSuccess = (newStudent) => {
-    console.log('Nuevo estudiante registrado:', newStudent);
+  const handleRegistroSuccess = (userData) => {
+    console.log('Nuevo usuario registrado:', userData);
+    authService.setAuthData(userData);
+    setUser(userData.usuario);
   };
 
-  const handleLoginSuccess = (userData) => {
-    console.log('Usuario autenticado:', userData);
+  const handleLoginSuccess = (authData) => {
+    console.log('Usuario autenticado:', authData);
+    authService.setAuthData(authData);
+    setUser(authData.usuario);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setUser(null);
   };
 
   return (
@@ -383,23 +435,29 @@ function App() {
           </div>
         )}
         
-        <Layout connectionStatus={connectionStatus}>
+        <Layout connectionStatus={connectionStatus} user={user}>
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage user={user} />} />
             <Route 
               path="/registro" 
               element={
-                <RegistroForm 
-                  onSuccess={handleRegistroSuccess}
-                />
+                user ? <Navigate to="/" replace /> :
+                <RegistroForm onSuccess={handleRegistroSuccess} />
               } 
             />
             <Route 
               path="/login" 
               element={
-                <LoginForm 
-                  onSuccess={handleLoginSuccess}
-                />
+                user ? <Navigate to="/" replace /> :
+                <LoginForm onSuccess={handleLoginSuccess} />
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard user={user} onLogout={handleLogout} />
+                </ProtectedRoute>
               } 
             />
             <Route path="*" element={<Navigate to="/" replace />} />

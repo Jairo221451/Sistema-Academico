@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginForm.css';
-import api from '../api';
+import { apiService } from '../api';
 
 const LoginForm = ({ onSuccess }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    username: '',
     password: ''
   });
 
@@ -23,12 +23,8 @@ const LoginForm = ({ onSuccess }) => {
   };
 
   const validateForm = () => {
-    if (!formData.email.trim() || !formData.password.trim()) {
-      setError('Por favor ingrese su email y contraseña');
-      return false;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Por favor ingrese un email válido');
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setError('Por favor ingrese su usuario y contraseña');
       return false;
     }
     return true;
@@ -42,23 +38,23 @@ const LoginForm = ({ onSuccess }) => {
     setError('');
 
     try {
-      const response = await api.post('/api/auth/login', formData);
+      const response = await apiService.login(formData);
       console.log('Inicio de sesión exitoso:', response.data);
 
       if (onSuccess) onSuccess(response.data);
       
       // Redirigir al dashboard o página principal después del login
-      navigate('/');
+      navigate('./Dashboard.js');
 
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
 
       if (error.response) {
         const status = error.response.status;
-        if (status === 401) {
-          setError('Credenciales incorrectas. Verifica tu email y contraseña');
-        } else if (status === 400) {
-          setError('Datos inválidos en el formulario');
+        if (status === 400) {
+          setError('Credenciales incorrectas. Verifica tu usuario y contraseña');
+        } else if (status === 401) {
+          setError('Usuario inactivo o no autorizado');
         } else {
           setError('Error en el servidor. Intente nuevamente más tarde');
         }
@@ -101,13 +97,13 @@ const LoginForm = ({ onSuccess }) => {
             {error && <div className="error-message">{error}</div>}
 
             <div className="form-group">
-              <label>Correo Electrónico *</label>
+              <label>Usuario *</label>
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
-                placeholder="tu.email@ejemplo.com"
+                placeholder="tu.usuario"
                 required
               />
             </div>
